@@ -1,13 +1,9 @@
+import os
+
 import tabula
-from gig import ents
 from utils import TSVFile, logx
 
-log = logx.get_logger('census_lk_pdf_parser.pdf_to_tsv')
-
-
-def get_region_ids(region_name):
-    region_ids = []
-    return ','.join(region_ids)
+log = logx.get_logger('census_lk_pdf_parser.parse')
 
 
 def parse_row(row):
@@ -40,6 +36,11 @@ def parse_row(row):
 
 
 def parse(pdf_file):
+    tsv_file = pdf_file[:-4] + '.tsv'
+    if os.path.exists(tsv_file):
+        log.warn(f'{tsv_file} already exits')
+        return tsv_file
+
     log.info(f'Parsing {pdf_file}...')
     names = [str(i) for i in range(8)]
     df = tabula.read_pdf(
@@ -61,38 +62,3 @@ def parse(pdf_file):
     log.info(f'Wrote {n_data_list} rows to {tsv_file}')
 
     return tsv_file
-
-
-def expand_row(data):
-    regions = ents.get_entities_by_name_fuzzy(
-        data['region_name'],
-        filter_entity_type=None,
-        filter_parent_id=None,
-        limit=5,
-        min_fuzz_ratio=95,
-    )
-    region_ids = list(
-        filter(
-            lambda region: region[:3] == 'LK-',
-            list(
-                map(
-                    lambda region: region['id'],
-                    regions,
-                )
-            ),
-        )
-    )
-    data['candidate_region_ids'] = ';'.join(region_ids)
-    return data
-
-
-def expand(tsv_file):
-    data_list = TSVFile(tsv_file).read()
-    expanded_data_list = list(map(expand_row, data_list))
-    expanded_tsv_file = tsv_file[:-4] + '.expanded.tsv'
-    TSVFile(expanded_tsv_file).write(expanded_data_list)
-    log.info(f'Wrote {expanded_tsv_file}')
-
-
-if __name__ == '__main__':
-    expand(parse('data/education.pdf'))
