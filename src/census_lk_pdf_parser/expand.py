@@ -30,7 +30,7 @@ def expand_row(data, previous_known_region_id):
             filter_entity_type=candidate_region_type,
             filter_parent_id=None,
             limit=5,
-            min_fuzz_ratio=95,
+            min_fuzz_ratio=90,
         )
 
         if candidate_region_type:
@@ -78,14 +78,15 @@ def expand(tsv_file):
 
     expanded_data_list = []
     previous_known_region_id = None
-    for data in data_list[:1000]:
+    for data in data_list:
         expanded_data = expand_row(data, previous_known_region_id)
         expanded_data_list.append(expanded_data)
         if expanded_data['region_id']:
             previous_known_region_id = expanded_data['region_id']
 
-        log.debug(f'{expanded_data['region_name']}'
-            + f'{expanded_data['region_id']}'
+        log.debug(
+            f'{ expanded_data["region_id"] }'
+            + f'\t{ expanded_data["region_name"] }'
         )
 
     expanded_tsv_file = tsv_file[:-4] + '.expanded.tsv'
