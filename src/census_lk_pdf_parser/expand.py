@@ -5,70 +5,68 @@ from utils import TSVFile, logx
 log = logx.get_logger('census_lk_pdf_parser.expand')
 
 
-def expand_row(data, previous_known_region_id):
-    region_id = None
-
+def get_region_id(data, previous_known_region_id):
     if data['region_name'] == 'Sri Lanka':
-        region_id = 'LK'
-    else:
-        candidate_region_type = None
-        if previous_known_region_id:
-            previous_region_type = ent_types.get_entity_type(
-                previous_known_region_id
-            )
-            if previous_region_type == ENTITY_TYPE.COUNTRY:
-                candidate_region_type = ENTITY_TYPE.DISTRICT
+        return 'LK'
 
-            elif previous_region_type == ENTITY_TYPE.DISTRICT:
-                candidate_region_type = ENTITY_TYPE.DSD
-
-            elif previous_region_type == ENTITY_TYPE.DSD:
-                candidate_region_type = ENTITY_TYPE.GND
-
-        candidate_regions = ents.get_entities_by_name_fuzzy(
-            data['region_name'],
-            filter_entity_type=candidate_region_type,
-            filter_parent_id=None,
-            limit=5,
-            min_fuzz_ratio=90,
+    region_id = None
+    candidate_region_type = None
+    if previous_known_region_id:
+        previous_region_type = ent_types.get_entity_type(
+            previous_known_region_id
         )
+        if previous_region_type == ENTITY_TYPE.COUNTRY:
+            candidate_region_type = ENTITY_TYPE.DISTRICT
 
-        if candidate_region_type:
-            for candidate_region in candidate_regions:
-                region_id = candidate_region['id']
-                break
-        else:
-            for candidate_region in candidate_regions:
-                candidate_region_id = candidate_region['id']
-                candidate_region_type = ent_types.get_entity_type(
-                    candidate_region_id
-                )
+        elif previous_region_type == ENTITY_TYPE.DISTRICT:
+            candidate_region_type = ENTITY_TYPE.DSD
 
-                if candidate_region_type == ENTITY_TYPE.DISTRICT:
-                    region_id = candidate_region_id
-                    break
+        elif previous_region_type == ENTITY_TYPE.DSD:
+            candidate_region_type = ENTITY_TYPE.GND
 
-                elif candidate_region_type == ENTITY_TYPE.DSD:
-                    if all(
-                        [
-                            candidate_region_id[:5]
-                            == previous_known_region_id[:5],
-                            candidate_region_id[:7]
-                            != previous_known_region_id[:7],
-                        ]
-                    ):
-                        region_id = candidate_region_id
-                        break
+    candidate_regions = ents.get_entities_by_name_fuzzy(
+        data['region_name'],
+        filter_entity_type=candidate_region_type,
+        filter_parent_id=None,
+        limit=5,
+        min_fuzz_ratio=90,
+    )
 
-                # candidate_region_type == ENTITY_TYPE.GND
-                else:
-                    if (
+    if candidate_region_type:
+        if candidate_regions:
+            return candidate_regions[0]['id']
+    else:
+        for candidate_region in candidate_regions:
+            candidate_region_id = candidate_region['id']
+            candidate_region_type = ent_types.get_entity_type(
+                candidate_region_id
+            )
+
+            if candidate_region_type == ENTITY_TYPE.DISTRICT:
+                return candidate_region_id
+
+            elif candidate_region_type == ENTITY_TYPE.DSD:
+                if all(
+                    [
+                        candidate_region_id[:5]
+                        == previous_known_region_id[:5],
                         candidate_region_id[:7]
-                        == previous_known_region_id[:7]
-                    ):
-                        region_id = candidate_region_id
-                        break
+                        != previous_known_region_id[:7],
+                    ]
+                ):
+                    return candidate_region_id
 
+            # candidate_region_type == ENTITY_TYPE.GND
+            else:
+                if (
+                    candidate_region_id[:7]
+                    == previous_known_region_id[:7]
+                ):
+                    return candidate_region_id
+    return region_id
+
+def expand_row(data, previous_known_region_id):
+    region_id = get_region_id(data, previous_known_region_id)
     return {'region_id': region_id} | data
 
 
@@ -78,16 +76,17 @@ def expand(tsv_file):
 
     expanded_data_list = []
     previous_known_region_id = None
+    n_missing_ids = 0
+    n = len(data_list)
     for data in data_list:
         expanded_data = expand_row(data, previous_known_region_id)
         expanded_data_list.append(expanded_data)
+        if not expanded_data['region_id']:
+            n_missing_ids += 1
         if expanded_data['region_id']:
             previous_known_region_id = expanded_data['region_id']
 
-        log.debug(
-            f'{ expanded_data["region_id"] }'
-            + f'\t{ expanded_data["region_name"] }'
-        )
+    log.warn(f'IDs could not be found for {n_missing_ids}/{n} Regions.')
 
     expanded_tsv_file = tsv_file[:-4] + '.expanded.tsv'
     TSVFile(expanded_tsv_file).write(expanded_data_list)
