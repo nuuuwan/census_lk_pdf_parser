@@ -66,7 +66,7 @@ def get_region_id(data, previous_known_region_id, min_fuzz_ratio):
     return region_id
 
 def expand_row(data, previous_known_region_id):
-    for min_fuzz_ratio in [90, 75, 60]:
+    for min_fuzz_ratio in [90]:
         region_id = get_region_id(data, previous_known_region_id, min_fuzz_ratio)
         if region_id:
             break
