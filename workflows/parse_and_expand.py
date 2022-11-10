@@ -1,5 +1,5 @@
 from census_lk_pdf_parser import expand, parse
-
+PAGES = 'all'
 CONFIG_LIST = [
     dict(
         pdf_file='data/education.pdf',
@@ -33,5 +33,6 @@ if __name__ == '__main__':
                 config['pdf_file'],
                 config['has_gnd_num'],
                 config['field_name_list'],
+                PAGES,
             )
         )

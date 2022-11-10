@@ -58,7 +58,7 @@ def parse_row(row, has_gnd_num, field_name_list):
     return d
 
 
-def parse(pdf_file, has_gnd_num, field_names):
+def parse(pdf_file, has_gnd_num, field_names, PAGES):
     tsv_file = pdf_file[:-4] + '.tsv'
     log.warn(f'{tsv_file} already exits')
 
@@ -66,7 +66,7 @@ def parse(pdf_file, has_gnd_num, field_names):
     names = [str(i) for i in range(8)]
     df = tabula.read_pdf(
         pdf_file,
-        pages="all",
+        pages=PAGES,
         multiple_tables=False,
         pandas_options=dict(names=names),
     )[0]
@@ -75,15 +75,12 @@ def parse(pdf_file, has_gnd_num, field_names):
     data_list = []
     N_HEADER = 5
     rows = df.values.tolist()[N_HEADER:]
-    for i, row in enumerate(rows):
+    for row in rows:
         try:
             data = parse_row(row, has_gnd_num, field_names)
         except:
             log.error(row)
         data_list.append(data)
-
-        if i % 1_000 == 0:
-            log.debug(data)
 
     tsv_file = pdf_file[:-4] + '.tsv'
     TSVFile(tsv_file).write(data_list)
