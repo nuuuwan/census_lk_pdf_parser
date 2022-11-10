@@ -5,7 +5,7 @@ from utils import TSVFile, logx
 log = logx.get_logger('census_lk_pdf_parser.expand')
 
 
-def get_region_id(data, previous_known_region_id):
+def get_region_id(data, previous_known_region_id, min_fuzz_ratio):
     if data['region_name'] == 'Sri Lanka':
         return 'LK'
 
@@ -29,7 +29,7 @@ def get_region_id(data, previous_known_region_id):
         filter_entity_type=candidate_region_type,
         filter_parent_id=None,
         limit=5,
-        min_fuzz_ratio=90,
+        min_fuzz_ratio=min_fuzz_ratio,
     )
 
     if candidate_region_type:
@@ -66,7 +66,11 @@ def get_region_id(data, previous_known_region_id):
     return region_id
 
 def expand_row(data, previous_known_region_id):
-    region_id = get_region_id(data, previous_known_region_id)
+    for min_fuzz_ratio in [90, 75, 60]:
+        region_id = get_region_id(data, previous_known_region_id, min_fuzz_ratio)
+        if region_id:
+            break
+
     return {'region_id': region_id} | data
 
 
@@ -80,9 +84,11 @@ def expand(tsv_file):
     n = len(data_list)
     for data in data_list:
         expanded_data = expand_row(data, previous_known_region_id)
+        # log.debug(expanded_data['region_name'] + ' -> ' + str(expanded_data['region_id']))
         expanded_data_list.append(expanded_data)
         if not expanded_data['region_id']:
             n_missing_ids += 1
+            # log.debug(expanded_data)
         if expanded_data['region_id']:
             previous_known_region_id = expanded_data['region_id']
 
