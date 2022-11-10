@@ -66,7 +66,7 @@ def parse(pdf_file, has_gnd_num, field_names):
     names = [str(i) for i in range(8)]
     df = tabula.read_pdf(
         pdf_file,
-        pages="1-100",
+        pages="all",
         multiple_tables=False,
         pandas_options=dict(names=names),
     )[0]
