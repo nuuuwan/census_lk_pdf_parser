@@ -3,6 +3,7 @@ from utils import TSVFile, logx
 
 log = logx.get_logger('census_lk_pdf_parser.parse')
 DELIM = '___'
+N_HEADER = 5
 
 
 def parse_int(x):
@@ -62,23 +63,24 @@ def parse_row(row, has_gnd_num, field_name_list):
     return d
 
 
-def parse(pdf_file, has_gnd_num, field_names, PAGES):
-    tsv_file = pdf_file[:-4] + '.tsv'
-    log.warn(f'{tsv_file} already exits')
-
-    log.info(f'Parsing {pdf_file}...')
+def get_rows(pdf_file, pages):
     names = [str(i) for i in range(8)]
     df = tabula.read_pdf(
         pdf_file,
-        pages=PAGES,
+        pages=pages,
         multiple_tables=False,
         pandas_options=dict(names=names),
     )[0]
 
-    log.info(f'Parsing {pdf_file} rows...')
-    data_list = []
-    N_HEADER = 5
     rows = df.values.tolist()[N_HEADER:]
+    n = len(rows)
+    log.info(f'Extracted {n} rows from pages {pages} of {pdf_file}')
+    return rows
+
+
+def parse(pdf_file, has_gnd_num, field_names, pages):
+    rows = get_rows(pdf_file, pages)
+    data_list = []
     for row in rows:
         try:
             data = parse_row(row, has_gnd_num, field_names)
