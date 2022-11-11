@@ -2,7 +2,7 @@ from gig import ent_types, ents
 from gig.ent_types import ENTITY_TYPE
 
 
-def get_region_id(data, previous_known_region_id, visited_region_id_set, min_fuzz_ratio):
+def get_region_id(data, previous_known_region_id, visited_region_id_list, min_fuzz_ratio):
     region_name = data['region_name']
     if region_name == 'Sri Lanka':
         return 'LK'
@@ -36,7 +36,7 @@ def get_region_id(data, previous_known_region_id, visited_region_id_set, min_fuz
     else:
         for candidate_region in candidate_regions:
             candidate_region_id = candidate_region['id']
-            if candidate_region_id in visited_region_id_set:
+            if candidate_region_id in visited_region_id_list:
                 continue
 
             candidate_region_type = ent_types.get_entity_type(

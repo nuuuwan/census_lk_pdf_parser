@@ -6,10 +6,10 @@ from census_lk_pdf_parser import regionx
 log = logx.get_logger('census_lk_pdf_parser.expand')
 
 
-def expand_row(data, previous_known_region_id, visited_region_id_set):
+def expand_row(data, previous_known_region_id, visited_region_id_list):
     for min_fuzz_ratio in [90]:
         region_id = regionx.get_region_id(
-            data, previous_known_region_id, visited_region_id_set, min_fuzz_ratio
+            data, previous_known_region_id, visited_region_id_list, min_fuzz_ratio
         )
         if region_id:
             break
@@ -32,12 +32,12 @@ def expand(tsv_file):
     previous_known_region_id = None
     n_missing_ids = 0
     n = len(data_list)
-    visited_region_id_set = set()
+    visited_region_id_list = []
     for i, data in enumerate(data_list):
         if (i + 1)  % 1_000 == 0:
             region_name = data['region_name']
             log.debug(f'{i + 1}/{n} {region_name}')
-        expanded_data = expand_row(data, previous_known_region_id, visited_region_id_set)
+        expanded_data = expand_row(data, previous_known_region_id, visited_region_id_list)
         expanded_data_list.append(expanded_data)
         region_id = expanded_data['region_id']
 
@@ -46,7 +46,7 @@ def expand(tsv_file):
             # log.debug(expanded_data)
         if region_id:
             previous_known_region_id = region_id
-            visited_region_id_set.add(region_id)
+            visited_region_id_list.append(region_id)
 
     log.warn(f'IDs could not be found for {n_missing_ids}/{n} Regions.')
     expanded_tsv_file = tsv_file[:-4] + '.expanded.tsv'
