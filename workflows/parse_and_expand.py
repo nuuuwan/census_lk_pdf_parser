@@ -1,6 +1,7 @@
 from census_lk_pdf_parser import expand, parse
+TEST_MODE = False
+PAGES = '1' if TEST_MODE else 'all'
 
-PAGES = 'all'
 CONFIG_LIST = [
     dict(
         pdf_file='data/education.pdf',
@@ -37,3 +38,5 @@ if __name__ == '__main__':
                 PAGES,
             )
         )
+        if TEST_MODE:
+            break
