@@ -59,26 +59,27 @@ def get_region_id(data, previous_known_region_id, min_fuzz_ratio):
 
             # candidate_region_type == ENTITY_TYPE.GND
             else:
-                if (
-                    candidate_region_id[:7]
-                    == previous_known_region_id[:7]
-                ):
+                if candidate_region_id[:7] == previous_known_region_id[:7]:
                     return candidate_region_id
     return region_id
 
+
 def expand_row(data, previous_known_region_id):
     for min_fuzz_ratio in [90]:
-        region_id = get_region_id(data, previous_known_region_id, min_fuzz_ratio)
+        region_id = get_region_id(
+            data, previous_known_region_id, min_fuzz_ratio
+        )
         if region_id:
             break
 
-    region_type = ent_types.get_entity_type(
-        region_id
+    region_type = ent_types.get_entity_type(region_id)
+    return (
+        dict(
+            region_id=region_id,
+            region_type=region_type,
+        )
+        | data
     )
-    return dict(
-        region_id=region_id,
-        region_type=region_type,
-    )| data
 
 
 def expand(tsv_file):

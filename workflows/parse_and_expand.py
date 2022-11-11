@@ -1,4 +1,5 @@
 from census_lk_pdf_parser import expand, parse
+
 PAGES = 'all'
 CONFIG_LIST = [
     dict(

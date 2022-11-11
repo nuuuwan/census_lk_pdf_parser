@@ -1,4 +1,3 @@
-
 import tabula
 from utils import TSVFile, logx
 
@@ -30,12 +29,17 @@ def extract_cells(row):
     )
     return DELIM.join(str_cell_list).split(DELIM)
 
+
 def validate(row, cells, d, field_name_list):
     total = d['total']
-    total2 = sum(list(map(
-        lambda field_name: d[field_name],
-        field_name_list[1:],
-    )))
+    total2 = sum(
+        list(
+            map(
+                lambda field_name: d[field_name],
+                field_name_list[1:],
+            )
+        )
+    )
     assert total == total2, row
 
 
@@ -78,7 +82,7 @@ def parse(pdf_file, has_gnd_num, field_names, PAGES):
     for row in rows:
         try:
             data = parse_row(row, has_gnd_num, field_names)
-        except:
+        except BaseException:
             log.error(row)
         data_list.append(data)
 
