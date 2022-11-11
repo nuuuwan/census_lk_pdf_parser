@@ -1,7 +1,8 @@
 from gig import ent_types, ents
 from gig.ent_types import ENTITY_TYPE
+from utils.cache import cache
 
-
+@cache('get_region_id', 86400 * 1000)
 def get_region_id(data, previous_known_region_id, visited_region_id_list, min_fuzz_ratio):
     region_name = data['region_name']
     if region_name == 'Sri Lanka':
