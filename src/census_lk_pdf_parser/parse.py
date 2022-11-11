@@ -83,12 +83,12 @@ def get_rows(pdf_file, pages):
 def parse(pdf_file, has_gnd_num, field_names, pages):
     rows = get_rows(pdf_file, pages)
     data_list = []
-    for row in rows:
+    for i_row, row in enumerate(rows):
         try:
             data = parse_row(row, has_gnd_num, field_names)
         except BaseException:
             log.error(row)
-        data_list.append(data)
+        data_list.append({'i_row': i_row} | data)
 
     tsv_file = pdf_file[:-4] + '.tsv'
     TSVFile(tsv_file).write(data_list)
