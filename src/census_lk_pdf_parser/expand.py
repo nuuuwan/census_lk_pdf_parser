@@ -6,7 +6,8 @@ log = logx.get_logger('census_lk_pdf_parser.expand')
 
 
 def get_region_id(data, previous_known_region_id, min_fuzz_ratio):
-    if data['region_name'] == 'Sri Lanka':
+    region_name = data['region_name']
+    if region_name == 'Sri Lanka':
         return 'LK'
 
     region_id = None
@@ -25,7 +26,7 @@ def get_region_id(data, previous_known_region_id, min_fuzz_ratio):
             candidate_region_type = ENTITY_TYPE.GND
 
     candidate_regions = ents.get_entities_by_name_fuzzy(
-        data['region_name'],
+        region_name,
         filter_entity_type=candidate_region_type,
         filter_parent_id=None,
         limit=5,
