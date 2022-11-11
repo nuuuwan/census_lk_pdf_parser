@@ -1,6 +1,6 @@
+import sys
+
 from census_lk_pdf_parser import expand, parse
-TEST_MODE = False
-PAGES = '1' if TEST_MODE else 'all'
 
 CONFIG_LIST = [
     dict(
@@ -29,14 +29,16 @@ CONFIG_LIST = [
 ]
 
 if __name__ == '__main__':
+    prod_mode = len(sys.argv) > 1 and sys.argv[1] == '--prod'
+    pages = 'all' if prod_mode else '1'
     for config in CONFIG_LIST:
         expand.expand(
             parse.parse(
                 config['pdf_file'],
                 config['has_gnd_num'],
                 config['field_name_list'],
-                PAGES,
+                pages,
             )
         )
-        if TEST_MODE:
+        if not prod_mode:
             break
