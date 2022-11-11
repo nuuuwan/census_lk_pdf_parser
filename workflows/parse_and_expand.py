@@ -1,7 +1,7 @@
 import sys
-
+from utils import logx
 from census_lk_pdf_parser import expand, parse
-
+log = logx.get_logger('census_lk_pdf_parser')
 CONFIG_LIST = [
     dict(
         pdf_file='data/education.pdf',
@@ -30,7 +30,10 @@ CONFIG_LIST = [
 
 if __name__ == '__main__':
     prod_mode = len(sys.argv) > 1 and sys.argv[1] == '--prod'
+    log.info(f'{prod_mode=}')
     pages = 'all' if prod_mode else '1'
+    log.info(f'{pages=}')
+
     for config in CONFIG_LIST:
         expand.expand(
             parse.parse(
