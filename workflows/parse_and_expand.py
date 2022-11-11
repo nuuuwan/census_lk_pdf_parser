@@ -7,7 +7,7 @@ from census_lk_pdf_parser import expand, parse
 log = logx.get_logger('census_lk_pdf_parser')
 CONFIG_LIST = [
     dict(
-        pdf_file='data/economic-activity.pdf',
+        pdf_file='data/economy-economic-activity.pdf',
         has_gnd_num=True,
         field_name_list=[
             'total',
@@ -17,7 +17,7 @@ CONFIG_LIST = [
         ],
     ),
     dict(
-        pdf_file='data/education.pdf',
+        pdf_file='data/education-educational-attainment.pdf',
         has_gnd_num=False,
         field_name_list=[
             'total',
