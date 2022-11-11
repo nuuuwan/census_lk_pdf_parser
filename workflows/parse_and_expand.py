@@ -34,7 +34,7 @@ CONFIG_LIST = [
 if __name__ == '__main__':
     prod_mode = len(sys.argv) > 1 and sys.argv[1] == '--prod'
     log.info(f'{prod_mode=}')
-    pages = 'all' if prod_mode else '1'
+    pages = 'all' if prod_mode else '1-25'
     log.info(f'{pages=}')
 
     for config in CONFIG_LIST:
