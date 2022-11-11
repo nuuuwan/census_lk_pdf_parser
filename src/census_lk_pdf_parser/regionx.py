@@ -1,9 +1,13 @@
 from gig import ent_types, ents
 from gig.ent_types import ENTITY_TYPE
 from utils.cache import cache
+from utils import logx
+log = logx.get_logger('census_lk_pdf_parser.regionx')
 
 @cache('get_region_id', 86400 * 1000)
-def get_region_id(data, previous_known_region_id, visited_region_id_list, min_fuzz_ratio):
+def get_region_id_inner(
+    data, previous_known_region_id, visited_region_id_list, min_fuzz_ratio
+):
     region_name = data['region_name']
     if region_name == 'Sri Lanka':
         return 'LK'
@@ -63,3 +67,29 @@ def get_region_id(data, previous_known_region_id, visited_region_id_list, min_fu
                 if candidate_region_id[:7] == previous_known_region_id[:7]:
                     return candidate_region_id
     return region_id
+
+
+def get_region_id(data, previous_known_region_id, visited_region_id_list):
+    for min_fuzz_ratio in [90, 80]:
+        region_id = get_region_id_inner(
+            data,
+            previous_known_region_id,
+            visited_region_id_list,
+            min_fuzz_ratio,
+        )
+        if region_id:
+            return region_id
+    return None
+
+
+if __name__ == '__main__':
+    candidate_regions = ents.get_entities_by_name_fuzzy(
+        'Meerigama',
+        filter_entity_type=None,
+        filter_parent_id=None,
+        limit=5,
+        min_fuzz_ratio=80,
+    )
+    for candidate_region in candidate_regions:
+        print()
+        print(candidate_region)
