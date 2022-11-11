@@ -1,8 +1,18 @@
 from gig import ent_types, ents
 from gig.ent_types import ENTITY_TYPE
-from utils.cache import cache
 from utils import logx
+from utils.cache import cache
+
 log = logx.get_logger('census_lk_pdf_parser.regionx')
+
+
+def get_district_id(region_id):
+    return region_id[:5]
+
+
+def get_dsd_id(region_id):
+    return region_id[:7]
+
 
 @cache('get_region_id', 86400 * 1000)
 def get_region_id_inner(
@@ -54,17 +64,19 @@ def get_region_id_inner(
             elif candidate_region_type == ENTITY_TYPE.DSD:
                 if all(
                     [
-                        candidate_region_id[:5]
-                        == previous_known_region_id[:5],
-                        candidate_region_id[:7]
-                        != previous_known_region_id[:7],
+                        get_district_id(candidate_region_id)
+                        == get_district_id(previous_known_region_id),
+                        get_dsd_id(candidate_region_id)
+                        != get_dsd_id(previous_known_region_id),
                     ]
                 ):
                     return candidate_region_id
 
             # candidate_region_type == ENTITY_TYPE.GND
             else:
-                if candidate_region_id[:7] == previous_known_region_id[:7]:
+                if get_dsd_id(candidate_region_id) == get_dsd_id(
+                    previous_known_region_id
+                ):
                     return candidate_region_id
     return region_id
 
