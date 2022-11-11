@@ -40,6 +40,7 @@ def expand(tsv_file):
         expanded_data = expand_row(data, previous_known_region_id, visited_region_id_set)
         expanded_data_list.append(expanded_data)
         region_id = expanded_data['region_id']
+
         if not region_id:
             n_missing_ids += 1
             # log.debug(expanded_data)
@@ -48,11 +49,6 @@ def expand(tsv_file):
             visited_region_id_set.add(region_id)
 
     log.warn(f'IDs could not be found for {n_missing_ids}/{n} Regions.')
-    expanded_data_list = sorted(
-        expanded_data_list,
-        key=lambda d: str(d['region_type']) + str(d['region_id']),
-    )
-
     expanded_tsv_file = tsv_file[:-4] + '.expanded.tsv'
     TSVFile(expanded_tsv_file).write(expanded_data_list)
     log.info(f'Wrote {expanded_tsv_file}')
