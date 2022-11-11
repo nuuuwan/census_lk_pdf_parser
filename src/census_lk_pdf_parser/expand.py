@@ -72,7 +72,13 @@ def expand_row(data, previous_known_region_id):
         if region_id:
             break
 
-    return {'region_id': region_id} | data
+    region_type = ent_types.get_entity_type(
+        region_id
+    )
+    return dict(
+        region_id=region_id,
+        region_type=region_type,
+    )| data
 
 
 def expand(tsv_file):
