@@ -13,6 +13,19 @@ def get_district_id(region_id):
 def get_dsd_id(region_id):
     return region_id[:7]
 
+def get_next_region_type(previous_region_type):
+    if previous_region_type == ENTITY_TYPE.COUNTRY:
+        return ENTITY_TYPE.DISTRICT
+
+    if previous_region_type == ENTITY_TYPE.DISTRICT:
+        return ENTITY_TYPE.DSD
+
+    if previous_region_type == ENTITY_TYPE.DSD:
+        return ENTITY_TYPE.GND
+
+    return None
+
+
 
 @cache('get_region_id', 86400 * 1000)
 def get_region_id_inner(
@@ -28,14 +41,7 @@ def get_region_id_inner(
         previous_region_type = ent_types.get_entity_type(
             previous_known_region_id
         )
-        if previous_region_type == ENTITY_TYPE.COUNTRY:
-            candidate_region_type = ENTITY_TYPE.DISTRICT
-
-        elif previous_region_type == ENTITY_TYPE.DISTRICT:
-            candidate_region_type = ENTITY_TYPE.DSD
-
-        elif previous_region_type == ENTITY_TYPE.DSD:
-            candidate_region_type = ENTITY_TYPE.GND
+        candidate_region_type = get_next_region_type(previous_region_type)
 
     candidate_regions = ents.get_entities_by_name_fuzzy(
         region_name,
