@@ -7,6 +7,16 @@ from census_lk_pdf_parser import expand, parse
 log = logx.get_logger('census_lk_pdf_parser')
 CONFIG_LIST = [
     dict(
+        pdf_file='data/economic-activity.pdf',
+        has_gnd_num=True,
+        field_name_list=[
+            'total',
+            'employed',
+            'unemployed',
+            'economically_not_active',
+        ],
+    ),
+    dict(
         pdf_file='data/education.pdf',
         has_gnd_num=False,
         field_name_list=[
@@ -17,16 +27,6 @@ CONFIG_LIST = [
             'gce_advanced_level',
             'degree_and_above',
             'no_schooling',
-        ],
-    ),
-    dict(
-        pdf_file='data/economic-activity.pdf',
-        has_gnd_num=True,
-        field_name_list=[
-            'total',
-            'employed',
-            'unemployed',
-            'economically_not_active',
         ],
     ),
 ]
