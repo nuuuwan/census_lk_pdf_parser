@@ -1,6 +1,6 @@
 import tabula
 from utils import TSVFile, logx
-
+from utils.cache import cache
 log = logx.get_logger('census_lk_pdf_parser.parse')
 DELIM = '___'
 N_HEADER = 5
@@ -62,7 +62,7 @@ def parse_row(row, has_gnd_num, field_name_list):
 
     return d
 
-
+@cache('get_rows', 86400 * 1000)
 def get_rows(pdf_file, pages):
     names = [str(i) for i in range(8)]
     df = tabula.read_pdf(
