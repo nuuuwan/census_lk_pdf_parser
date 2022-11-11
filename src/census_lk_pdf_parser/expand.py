@@ -87,11 +87,12 @@ def expand(tsv_file):
         expanded_data = expand_row(data, previous_known_region_id)
         # log.debug(expanded_data['region_name'] + ' -> ' + str(expanded_data['region_id']))
         expanded_data_list.append(expanded_data)
-        if not expanded_data['region_id']:
+        region_id = expanded_data['region_id']
+        if not region_id:
             n_missing_ids += 1
             # log.debug(expanded_data)
-        if expanded_data['region_id']:
-            previous_known_region_id = expanded_data['region_id']
+        if region_id:
+            previous_known_region_id = region_id
 
     log.warn(f'IDs could not be found for {n_missing_ids}/{n} Regions.')
 
