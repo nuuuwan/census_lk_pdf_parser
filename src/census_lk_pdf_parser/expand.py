@@ -14,7 +14,8 @@ def expand_row(data, previous_known_region_id):
         if region_id:
             break
 
-    region_type = ent_types.get_entity_type(region_id)
+
+    region_type = ent_types.get_entity_type(region_id) if region_id else None
     return (
         dict(
             region_id=region_id,
