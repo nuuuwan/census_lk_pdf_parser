@@ -1,6 +1,9 @@
 import sys
+
 from utils import logx
+
 from census_lk_pdf_parser import expand, parse
+
 log = logx.get_logger('census_lk_pdf_parser')
 CONFIG_LIST = [
     dict(
