@@ -92,7 +92,6 @@ def expand(tsv_file):
     n = len(data_list)
     for data in data_list:
         expanded_data = expand_row(data, previous_known_region_id)
-        # log.debug(expanded_data['region_name'] + ' -> ' + str(expanded_data['region_id']))
         expanded_data_list.append(expanded_data)
         region_id = expanded_data['region_id']
         if not region_id:
